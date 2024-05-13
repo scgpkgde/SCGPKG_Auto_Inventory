@@ -65,26 +65,25 @@ def main():
     lst_str_cogs = None
     lst_str_rwds = None
     
+    start_period = datetime.strptime('2021-10-01', '%Y-%m-%d')
+    end_period = datetime.strptime('2022-09-30', '%Y-%m-%d')
+ 
     for period in lst_period:
         for month in lst_month:
             add_period = str(period) + '_' + str(month)
             lst_period_month.append(add_period)
             
-    start_period = datetime.strptime('2021-10-01', '%Y-%m-%d')
-    end_period = datetime.strptime('2022-09-30', '%Y-%m-%d')
+
     #=======================================================================================================
     #* Create sidebar
  
     with st.form("input_params_form"):
         with st.sidebar:
             #parameters decision
-            st.title("Parameters for decision")
-            start_period = datetime.strptime('2021-10-01', '%Y-%m-%d')
-            end_period = datetime.strptime('2022-09-30', '%Y-%m-%d')
+            st.title("Parameters for decision") 
             start_period = st.date_input("Data date from :",value=start_period)
             end_period = st.date_input("Data date to :",value=end_period)
-            
-            
+ 
             percentile = st.number_input(label=f"Percentile of sales volume (%)",value=percentile,min_value=0,max_value=100,step=1)
             quantile = percentile / 100
             weekly_cv = st.number_input(label="Weekly CV",value = weekly_cv ,step=0.1) 
@@ -163,18 +162,19 @@ def main():
     if submit_btn:
         with st.container():
             
-                st.title("Data for decision") 
-                prepare_data = data_preparation.Data(parameters_dict)   
-                st.dataframe(data_table_1.Table1(prepare_data).get_data())
-                st.dataframe(data_table_2.Table2(prepare_data).get_data()) 
-                st.plotly_chart(data_table_3.Table3(prepare_data).get_data(), use_container_width=True)
-                st.altair_chart(data_table_4.Table4(prepare_data).get_data(), use_container_width=True)
-                st.plotly_chart(data_table_5.Table5(prepare_data).get_data(), use_container_width=True)
-                st.dataframe(data_table_6.Table6(prepare_data).get_data().to_frame().style.format("{:.2f}"))
-                st.dataframe(data_table_7.Table7(prepare_data).get_data())
-                st.dataframe(data_table_8.Table8(prepare_data).get_data().style.format("{:.2f}"))
-                st.dataframe(data_table_9.Table9(prepare_data).get_data())  
-                st.write("Production Lead Time : %s" % data_table_10.Table10(prepare_data).get_data())
+            st.title("Data for decision") 
+            prepare_data = data_preparation.Data(parameters_dict)   
+            st.dataframe(data_table_1.Table1(prepare_data).get_data()) 
+            st.dataframe(data_table_2.Table2(prepare_data).get_data()) 
+            st.metric(f'Percentile average monthly sales volume {percentile}' ,'{0:.2f}'.format(data_table_2.Table2(prepare_data).get_quantile()) , delta=None, delta_color="normal")
+            st.plotly_chart(data_table_3.Table3(prepare_data).get_data(), use_container_width=True)
+            st.altair_chart(data_table_4.Table4(prepare_data).get_data(), use_container_width=True)
+            st.plotly_chart(data_table_5.Table5(prepare_data).get_data(), use_container_width=True)
+            st.dataframe(data_table_6.Table6(prepare_data).get_data().to_frame().style.format("{:.2f}"))
+            st.dataframe(data_table_7.Table7(prepare_data).get_data())
+            st.dataframe(data_table_8.Table8(prepare_data).get_data().style.format("{:.2f}"))
+            st.dataframe(data_table_9.Table9(prepare_data).get_data())  
+            st.write("Production Lead Time : %s" % data_table_10.Table10(prepare_data).get_data())
             
 if __name__ == '__main__':  
     main()

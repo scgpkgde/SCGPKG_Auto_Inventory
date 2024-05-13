@@ -14,7 +14,7 @@ class Data:
   
     def __init__(self, parameters_dict) -> None:
 
-        self.parameters_dict = parameters_dict
+        self.parameters_dict = parameters_dict 
         self.demands_df = self.get_demands()
         self.result_summary_df, self.final_prepare = self.get_result_summary()
         self.final_df, self.initial_data = self.get_inf_decision() 
@@ -27,8 +27,7 @@ class Data:
         self.rwds_month_count = self.get_rwds_month_count()  
         self.adj_product_type  = self.get_adj_product_type()
         self.df_choose, self.production_lt = self.conclusion()
- 
- 
+
     def get_rwds(self):
         
         args_condition = self.parameters_dict['lst_exclude_period_rwds']
@@ -69,7 +68,10 @@ class Data:
             str_end_period = self.parameters_dict['end_period'].strftime('%Y-%m-%d') 
             demands_query = demands_query %(str_start_period, str_start_period, str_start_period, str_end_period)
             demands_df = pd.read_sql_query(demands_query, con=engine)
-            demands_df['Grade'] = demands_df['Grade'].str.strip()  
+            demands_df['Grade'] = demands_df['Grade'].str.strip()
+
+            
+              
             return demands_df
         
         except Exception as e:
@@ -452,13 +454,7 @@ class Data:
         )
 
         final_df_ini = sales_frequent_df[['mat_number','Grade','Gram','total_ton','avg_weekly','std_weekly','avg_monthly','std_monthly','cv_weekly','cv_monthly','average_daily','std_daily']]
-        
  
-        # final_df_ini.to_pickle('./outbound/initial_data.pkl')
-        # print(final_df)
-        # print("final_df")
-        
-        
         return final_df, final_df_ini   
     
     def set_std(self):
@@ -700,14 +696,6 @@ class Data:
         df_not_unknown =  self.data_buffer_not_unknown
         df_nine_box = self.df_after_nine_box
 
-        # df_main.to_excel('09_df_main.xlsx',index=False)
-        # df_not_unknown.to_excel('09_df_not_unknown.xlsx',index=False)
-        # df_nine_box.to_excel('09_df_nine_box.xlsx',index=False)
-        # df_not_unknown.to_excel('df_not_unknown.xlsx',index=False)
-        # df_nine_box.to_excel('df_nine_box.xlsx',index=False)
-
-        # print(df_main)
-
         df_not_unknown = df_not_unknown[['mat_number','Grade','Gram','product_type']]
         df_nine_box = df_nine_box[['mat_number','Grade','Gram','product_type','box']]
 
@@ -718,13 +706,6 @@ class Data:
 
         ans_df = ans_df[['mat_number','Grade_x','Gram_x','total_ton','avg_weekly','std_weekly','avg_monthly','std_monthly','cv_weekly','cv_monthly','average_daily','std_daily','grade_gram','ton','avg_lt','sd_lt','Q_2','Safety_Stock','product_type_new','box']]
         ans_df.rename(columns = {'product_type_new':'product_type','Grade_x':'Grade','Gram_x':'Gram'}, inplace = True)
-
-        # ans_df.to_excel('ans_df.xlsx',index=False)
-        # print(total_record)
-        # print(std_count)
-        # print(none_std_count)
-        # print(ratio_std_count)
-        # print(params_lst_exclude_period_rwds)
 
         df_rwds = self.rwds
         month_count = self.rwds_month_count
@@ -804,23 +785,6 @@ class Data:
         cogs_amt_avg = final_ans_df_cogs["cogs_amt"].mean()
 
         production_lt = lt_x_ton / total_ton
-
-        # print(str_ratio)
-        # print(q_2)
-        # print(new_ss)
-        # print(avg_inventory)
-        # print(avg_inventory_days)
-        # print(inventory_turnover_ratio)
-        # print(total_ton)
-        # print(lt_x_ton)
-
-        # print("inventory_turnover_ratio : %s" %inventory_turnover_ratio)
-        # print("production leadtime : %s" %production_lt)
-        # print("cogs_amt_avg : %s" %cogs_amt_avg)
-        # print("cogs_amt : %s" %cogs_amt)
-        # print("total_ton : %s" %total_ton)
-        # print("sum_avg_x_cogs : %s" %sum_avg_x_cogs)
-        # final_ans_df_cogs["inventory_turnover_ratio"] = (params_cogs * (10**6)) / (final_ans_df_cogs["avg_inventory"] * final_ans_df_cogs["cogs_amt"] )
 
         # Revise no : STD => Non Std
         cnt_final_ans_df_cond = (((final_ans_df_cogs["product_type_adj"] == 'STD') | (final_ans_df_cogs["product_type_adj"] == 'LOW-STD')) & (final_ans_df_cogs["product_type"] == 'NON-STD'))
@@ -966,8 +930,7 @@ class Data:
         ratio_low_std = low_std_count / total_record
         str_ratio = '{0:.2f}'.format(ratio_std_count * 100) + ' : ' + '{0:.2f}'.format(ratio_low_std * 100) + ' : '  + '{0:.2f}'.format(ratio_none_std * 100)
 
-        # =========================================================================
-
+        # ===================================================================================
         row = { 
             'inventory_turnover': inventory_turnover_ratio,
 	        'ratio (STD:LOW:NON)': str_ratio,
@@ -978,8 +941,7 @@ class Data:
             'revise_sku_no' : sku_revise_count,
             'main_grade': lst_grade_gram
         }
-        
-        
+
         df_choose = pd.DataFrame([row])
 
         return df_choose, production_lt
