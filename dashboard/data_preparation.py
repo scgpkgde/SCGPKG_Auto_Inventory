@@ -9,7 +9,6 @@ from sklearn import metrics
 from sklearn.cluster import KMeans,MiniBatchKMeans
 import os
  
-    
 class Data:
   
     def __init__(self, parameters_dict) -> None:
@@ -17,7 +16,7 @@ class Data:
         self.parameters_dict = parameters_dict 
         self.demands_df = self.get_demands()
         self.result_summary_df, self.final_prepare = self.get_result_summary()
-        self.final_df, self.initial_data = self.get_inf_decision() 
+        self.final_df, self.initial_data = self.get_inf_decision()
         self.percent_df, self.value_of_quntile, self.percent_df_sales_freq, self.df_for_clustering, self.initial_std = self.set_std()
         self.params_clustering_df,self.df_elbow,self.cluster_centroid_df,self.df_percentile, self.df_after_nine_box = self.clustering()
         self.leadtime = self.get_leadtime()
@@ -68,10 +67,7 @@ class Data:
             str_end_period = self.parameters_dict['end_period'].strftime('%Y-%m-%d') 
             demands_query = demands_query %(str_start_period, str_start_period, str_start_period, str_end_period)
             demands_df = pd.read_sql_query(demands_query, con=engine)
-            demands_df['Grade'] = demands_df['Grade'].str.strip()
-
-            
-              
+ 
             return demands_df
         
         except Exception as e:
@@ -83,11 +79,13 @@ class Data:
         start_date = self.parameters_dict['start_period']
         end_date = self.parameters_dict['end_period']
 
-        end_month = self.parameters_dict['start_period'].month
+        end_month = self.parameters_dict['end_period'].month
         end_year = self.parameters_dict['end_period'].year
 
-        sales_frequency_df = self.demands_df.copy()
-        
+        # sales_frequency_df = self.demands_df
+        sales_frequency_df = self.demands_df.copy()   
+        sales_frequency_df['Grade'] = sales_frequency_df['Grade'].str.strip()
+            
         selected_column = ['mat_number','dp_date','ton','Grade','Gram']
         sales_frequency_df = sales_frequency_df[selected_column]
         number_of_days = sales_frequency_df['dp_date'].nunique()
@@ -244,8 +242,10 @@ class Data:
         # result_summary_df = result_summary_df.merge(daily_df,how='left',on=['Mat Number'])
     
         result_summary_df = result_summary_df.drop_duplicates()
-        result_summary_detail_df = result_summary_df.copy()
-    
+        
+        
+        
+        result_summary_detail_df = result_summary_df.copy() 
 
         result_summary_df = result_summary_df[['Mat Number','Grade','Gram','sales_frequency','summary_ton','weekly_std','weekly_avg','monthly_std']]
         result_summary_df = result_summary_df.groupby(['sales_frequency']).agg(
@@ -299,7 +299,6 @@ class Data:
             'std_monthly': 'sd_monthly_sales_volume',
             }
         )
-
         return result_summary_df, result_summary_detail_df
  
         
@@ -308,7 +307,8 @@ class Data:
         
     def get_inf_decision(self):
         
-        sales_frequent_df = self.final_prepare 
+        sales_frequent_df = self.final_prepare.copy() 
+        
         sales_frequent_df = sales_frequent_df.rename(
             columns={
                 'sd_weekly_sales_volume':'std_weekly',
@@ -320,8 +320,10 @@ class Data:
                 'avg_daily':'average_daily'
                 }
         )
-        final_df = self.result_summary_df 
+        final_df = self.result_summary_df
+        
         final_df = self.demands_df.merge(sales_frequent_df,how='left',on=['mat_number'])
+        
         final_df = final_df.drop_duplicates()
         number_of_days = self.demands_df['dp_date'].nunique()
 
@@ -459,8 +461,10 @@ class Data:
     
     def set_std(self):
         
-        data = self.initial_data
-        sales_frequent_df = self.final_prepare
+        data = self.initial_data.copy()
+        
+        sales_frequent_df = self.final_prepare.copy()
+ 
   
         value_of_quntile = data['avg_monthly'].quantile(self.parameters_dict['quantile'])
         data["product_type"] = ""
@@ -477,7 +481,7 @@ class Data:
 
         percent_df_sales_freq = data.merge(sales_frequent_df,how='left',on='mat_number')
         percent_df_sales_freq = percent_df_sales_freq.rename(columns={"Grade_x": "Grade", "Gram_x": "Gram"})
-
+  
         # percent_df_sales_freq.to_excel('percent_df_sales_freq',index=False)
 
         # data.to_pickle('./outbound/initial_std.pkl')
@@ -830,7 +834,7 @@ class Data:
 
         # df_frequency = pd.read_pickle('./outbound/df_frequency.pkl')
         df_frequency = self.percent_df_sales_freq
-        # final_ans_df_cogs.to_excel('final_ans_df_cogs_0.xlsx',index=False)
+     
         
         # final_ans_df_cogs = final_ans_df_cogs.merge(df_frequency, on='mat_number', how='left')
         final_ans_df_cogs = final_ans_df_cogs.merge(df_frequency, on='mat_number', how='left', suffixes=('_left', '_right'))
@@ -898,10 +902,7 @@ class Data:
         final_ans_df_cogs["avg_monthly"] = final_ans_df_cogs["avg_monthly"].fillna(0)
         final_ans_df_cogs["std_monthly"] = final_ans_df_cogs["std_monthly"].fillna(0)
         final_ans_df_cogs["cv_monthly"] = final_ans_df_cogs["cv_monthly"].fillna(0)
-
-        # final_ans_df_cogs.to_excel('./debug/09-final_ans_df_cogs.xlsx', index=False, engine='openpyxl')
-        # final_ans_df_cogs.to_pickle('final_ans_df_cogs.pkl')
-
+ 
         # =========================================================================
         condition_std = (final_ans_df_cogs['product_type'] == 'STD' )
         condition_non_std = (final_ans_df_cogs['product_type'] == 'NON-STD')

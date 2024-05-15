@@ -7,14 +7,15 @@ class Table3:
  
         
     def get_data(self):
-          
-        # src_sales_freq_df.rename(columns={'cv_weekly_x': 'cv_weekly', "cv_monthly_x":"cv_monthly"}, inplace=True)
-        # src_sales_freq_df = self.data.percent_df_sales_freq[~src_sales_freq_df['sales_frequency'].isnull()]
+        
+        src_sales_freq_df = self.data.percent_df_sales_freq
+        src_sales_freq_df.rename(columns={'cv_weekly_x': 'cv_weekly', "cv_monthly_x":"cv_monthly"}, inplace=True)
+        src_sales_freq_df = src_sales_freq_df[~src_sales_freq_df['sales_frequency'].isnull()]
  
         fig = px.scatter(
-                self.data.percent_df_sales_freq, 
+                src_sales_freq_df, 
                 x="avg_monthly", 
-                y="cv_monthly_x", 
+                y="cv_weekly", 
                 color="sales_frequency",hover_data=['mat_number','Grade','Gram']
                 )
         
