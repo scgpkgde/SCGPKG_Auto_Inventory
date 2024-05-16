@@ -39,20 +39,22 @@ def main2():
     holding_cost = 160.0
     wacc = 11.5
     z_score = None
-    lst_period = [i for i in range(current_year - 5,current_year + 1)]
+    lst_period = [i for i in range(current_year - 5,current_year - 2)]
     lst_month = ['',1,2,3,4,5,6,7,8,9,10,11,12]
     lst_period_month = []
-    lst_exclude_period_cogs = ['2019_']
-    lst_exclude_period_rwds = ['2019_']
+    exclude_year_defualt = str(current_year - 5)
+    lst_exclude_period_cogs = []
+    lst_exclude_period_rwds = []
     i = 1
     lst_str_cogs = None
     lst_str_rwds = None
     
-   
-
     for period in lst_period:
         for month in lst_month:
-            add_period = str(period) + '_' + str(month)
+            if month == '':
+                add_period = str(period)
+            else:
+                add_period = str(period) + '_' + str(month)
             lst_period_month.append(add_period)
             
     start_period = datetime.strptime('2021-10-01', '%Y-%m-%d')
@@ -87,8 +89,8 @@ def main2():
             
                 wacc = st.number_input(label="Weighted Average Cost Of Capital (%)",value = wacc ,step= 0.1)
                 holding_cost = st.number_input(label="Holding cost (THB)",value = holding_cost ,step=1000.00)
-                lst_exclude_period_cogs = st.multiselect('Exclude Period COGS',lst_period_month, default=['2019_'])
-                lst_exclude_period_rwds = st.multiselect('Exclude Period RW/DS',lst_period_month,default=['2019_'])
+                lst_exclude_period_cogs = st.multiselect('Exclude Period COGS',lst_period_month,default=[exclude_year_defualt])
+                lst_exclude_period_rwds = st.multiselect('Exclude Period RW/DS',lst_period_month,default=[exclude_year_defualt])
             
             st.markdown('<hr style="margin-top: 5px; margin-bottom:15px;">', unsafe_allow_html=True)           
             submit_btn = st.form_submit_button("⭐ Submit ⭐",use_container_width=True,type="primary")
@@ -188,7 +190,7 @@ def main2():
             submit_btn = False
 
     if st.button("Go to new Page"):
-        st.session_state.page = "new"  
+        st.session_state.page = "new"   
         
 if __name__ == '__main__':  
     if 'page' not in st.session_state:
