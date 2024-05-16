@@ -6,6 +6,7 @@ import streamlit as st
 from datetime import datetime, date, timedelta
 import scipy.stats as stat
 import pandas as pd
+import new_main
 
 def main2():
 
@@ -46,7 +47,8 @@ def main2():
     i = 1
     lst_str_cogs = None
     lst_str_rwds = None
-
+    
+   
 
     for period in lst_period:
         for month in lst_month:
@@ -56,9 +58,8 @@ def main2():
     start_period = datetime.strptime('2021-10-01', '%Y-%m-%d')
     end_period = datetime.strptime('2022-09-30', '%Y-%m-%d')
 
-#=======================================================================================================
-    with st.form("input_params_form"):
-        with st.sidebar:
+    with st.sidebar:
+        with st.form("input_params_form",border=False):
             start_period = st.date_input("Data date from :",value=start_period)
             end_period = st.date_input("Data date to :",value=end_period)
             st.markdown('<hr style="margin-top: 5px; margin-bottom:15px;">', unsafe_allow_html=True)
@@ -90,7 +91,7 @@ def main2():
                 lst_exclude_period_rwds = st.multiselect('Exclude Period RW/DS',lst_period_month,default=['2019_'])
             
             st.markdown('<hr style="margin-top: 5px; margin-bottom:15px;">', unsafe_allow_html=True)           
-            submit_btn = st.form_submit_button("⭐ Submit ⭐",use_container_width=True)
+            submit_btn = st.form_submit_button("⭐ Submit ⭐",use_container_width=True,type="primary")
 
             i = 1
             for lst in lst_exclude_period_cogs:
@@ -131,19 +132,24 @@ def main2():
                 "year_leadtime": year_leadtime,
                 "z_score": z_score
             } 
-    #=======================================================================================================
 
     submit_btn = True
     if submit_btn :
         with st.container():
-            prepare_data = data_preparation.Data(parameters_dict)   
-            st.header("Data for decision")
+            prepare_data = data_preparation.Data(parameters_dict)
+               
+            st.write(
+                f'<h2 style="text-align: -webkit-center;">Data for decision',
+                f'</h2>',
+                unsafe_allow_html=True
+            )
             st.dataframe(data_table_1.Table1(prepare_data).get_data())
             quantile_value = data_table_2.Table2(prepare_data).get_quantile()
             st.write(
                 f'<div class="card" style="border: 1px solid rgb(0 0 0 / 19%);border-radius: 10px;margin-bottom: 20px;">',
                 f'<div class="card-body" style="padding: 1%; text-align: -webkit-center;">',
-                f'<p class="card-text" style="margin: 0;">" {percentile} " percentile of average monthly sales volume </p>',
+                f'<div style="display: flex; justify-content: center;"><p class="card-text" style="margin: 0;">',
+                f'"<b style="color: #5071d3; font-weight: 800;">{percentile}</b>" percentile of average monthly sales volume </p></div>',
                 f'<p class="card-text" style="margin: 0; font-size: x-large; font-weight: 600;">{quantile_value:.2f} ton(s)</p>',
                 '</div>',
                 '</div>',
@@ -154,7 +160,11 @@ def main2():
             st.altair_chart(data_table_4.Table4(prepare_data).get_data(), use_container_width=True)
             st.markdown('<hr style="margin-top: 5px; margin-bottom:15px;">', unsafe_allow_html=True)
 
-            st.header("Data for cluster")
+            st.write(
+                f'<h2 style="text-align: -webkit-center;">Data for cluster',
+                f'</h2>',
+                unsafe_allow_html=True
+            )
             st.plotly_chart(data_table_5.Table5(prepare_data).get_data(), use_container_width=True)
 
             cols = st.columns(2)
@@ -177,17 +187,14 @@ def main2():
 
             submit_btn = False
 
-            if st.button("Go to new Page"):
-                st.session_state.page = "main2"
+    if st.button("Go to new Page"):
+        st.session_state.page = "new"  
         
-    
 if __name__ == '__main__':  
-    # main()
     if 'page' not in st.session_state:
-        st.session_state.page = 'main'
+        st.session_state.page = 'main2'
         
-    if st.session_state.page == 'main':
+    if st.session_state.page == 'main2':
         main2()
-    elif st.session_state.page == 'main2':
-        import new_main
+    elif st.session_state.page == 'new':
         new_main.main()
