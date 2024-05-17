@@ -6,7 +6,7 @@ class Table10:
         self.data = prepare_data
  
     
-    def get_data(self):
-          
-        return  self.data.production_lt
+    def get_data(self): 
+        
+        return  round(self.data.production_lt,2)
     

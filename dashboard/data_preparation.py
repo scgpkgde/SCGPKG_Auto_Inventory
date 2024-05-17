@@ -6,35 +6,125 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from sklearn.preprocessing import StandardScaler, quantile_transform
 from sklearn import metrics
-from sklearn.cluster import KMeans,MiniBatchKMeans
-import os
- 
+from sklearn.cluster import KMeans,MiniBatchKMeans 
+import streamlit as st  
+import time
+
 class Data:
   
-    def __init__(self, parameters_dict) -> None:
-
+    def __init__(self, parameters_dict, is_change) -> None:
         self.parameters_dict = parameters_dict 
-        self.demands_df = self.get_demands()
-        self.result_summary_df, self.final_prepare = self.get_result_summary()
-        self.final_df, self.initial_data = self.get_inf_decision()
+        
+        demands_df_time = 0
+        get_result_summary_time = 0
+        get_inf_decision_read_time = 0
+        
+        if 'demands_df' not in st.session_state:
+            start_time = time.time()
+            st.session_state.demands_df = self.get_demands() 
+            demands_df_time = time.time() - start_time
+        
+        if is_change :
+            start_time = time.time()
+            st.session_state.demands_df = self.get_demands() 
+            demands_df_time = time.time() - start_time 
+       
+        self.demands_df = st.session_state.demands_df
+        
+        if 'result_summary_df' and 'final_prepare' not in st.session_state:
+            start_time = time.time()
+            st.session_state.result_summary_df, st.session_state.final_prepare = self.get_result_summary() 
+            get_result_summary_time = time.time() - start_time
+            
+        if is_change :
+            start_time = time.time()
+            st.session_state.result_summary_df, st.session_state.final_prepare = self.get_result_summary() 
+            get_result_summary_time = time.time() - start_time
+        
+        self.result_summary_df = st.session_state.result_summary_df
+        self.final_prepare = st.session_state.final_prepare
+        
+        if 'final_df' and 'initial_data' not in st.session_state:
+            start_time = time.time()
+            st.session_state.final_df, st.session_state.initial_data = self.get_inf_decision() 
+            get_inf_decision_read_time = time.time() - start_time
+            
+            
+        if is_change :
+            start_time = time.time()
+            st.session_state.final_df, st.session_state.initial_data = self.get_inf_decision() 
+            get_inf_decision_read_time = time.time() - start_time
+        
+        self.final_df = st.session_state.final_df
+        self.initial_data = st.session_state.initial_data
+        
+        start_time = time.time()
         self.percent_df, self.value_of_quntile, self.percent_df_sales_freq, self.df_for_clustering, self.initial_std = self.set_std()
+        set_std_read_time = time.time() - start_time
+        
+        start_time = time.time()
         self.params_clustering_df,self.df_elbow,self.cluster_centroid_df,self.df_percentile, self.df_after_nine_box = self.clustering()
+        clustering_read_time = time.time() - start_time
+        
+        
+        start_time = time.time()
         self.leadtime = self.get_leadtime()
+        get_leadtime_read_time = time.time() - start_time
+        
+        
+        start_time = time.time()
         self.data_main, self.data_buffer_not_unknown = self.set_lt()
+        set_lt_read_time = time.time() - start_time
+        
+        start_time = time.time()
         self.rwds = self.get_rwds()
+        get_rwds_read_time = time.time() - start_time
+        
+        
+        start_time = time.time()
         self.cogs = self.get_cogs() 
+        get_cogs_read_time = time.time() - start_time
+        
+        
+        start_time = time.time()
         self.rwds_month_count = self.get_rwds_month_count()  
+        get_rwds_month_count_read_time = time.time() - start_time
+        
+        
+        start_time = time.time()
         self.adj_product_type  = self.get_adj_product_type()
+        get_adj_product_type_read_time = time.time() - start_time
+        
+        
+        start_time = time.time()
         self.df_choose, self.production_lt = self.conclusion()
-
+        conclusion_read_time = time.time() - start_time
+        
+        print('============== read_time =================')
+        print(f"demands_df_time read time: {demands_df_time:.4f} seconds")
+        print(f"get_result_summary_time read time: {get_result_summary_time:.4f} seconds")
+        print(f"get_inf_decision_read_time read time: {get_inf_decision_read_time:.4f} seconds") 
+        print(f"set_std_read_time read time: {set_std_read_time:.4f} seconds") 
+        print(f"clustering_read_time read time: {clustering_read_time:.4f} seconds")
+        print(f"get_leadtime_read_time read time: {get_leadtime_read_time:.4f} seconds")
+        print(f"set_lt_read_time read time: {set_lt_read_time:.4f} seconds") 
+        print(f"get_rwds_read_time read time: {get_rwds_read_time:.4f} seconds") 
+        print(f"get_cogs_read_time read time: {get_cogs_read_time:.4f} seconds") 
+        print(f"get_rwds_month_count_read_time read time: {get_rwds_month_count_read_time:.4f} seconds") 
+        print(f"get_adj_product_type_read_time read time: {get_adj_product_type_read_time:.4f} seconds")
+        print(f"conclusion_read_time read time: {conclusion_read_time:.4f} seconds") 
+        print(f"total time: {demands_df_time + get_result_summary_time + get_inf_decision_read_time + set_std_read_time + clustering_read_time + get_leadtime_read_time + set_lt_read_time + get_rwds_read_time + get_cogs_read_time + get_rwds_month_count_read_time + get_adj_product_type_read_time + conclusion_read_time:.4f} seconds")
+        
+        
     def get_rwds(self):
         
         args_condition = self.parameters_dict['lst_exclude_period_rwds']
-        engine = set_connection('COGS') 
+        engine = set_connection('COGS')
         condition = ','.join("'" + str(x) + "'" for x in args_condition)
         rwds_query = open("./sql_script/sql_rwds.sql").read() 
         rwds_query = rwds_query %(condition,condition)
         rwds_df = pd.read_sql_query(rwds_query,con=engine)
+        
         return rwds_df 
 
     def get_rwds_month_count(self):
@@ -58,34 +148,37 @@ class Data:
         diff_date = self.parameters_dict['end_period'] - self.parameters_dict['start_period']
         return round(diff_date.days / 30, 0)    
  
-    def get_demands(self):
-          
-        try:
-            engine = set_connection('AI_Demand') 
-            demands_query = open("./sql_script/demands.sql").read()
-            str_start_period = self.parameters_dict['start_period'].strftime('%Y-%m-%d')
-            str_end_period = self.parameters_dict['end_period'].strftime('%Y-%m-%d') 
-            demands_query = demands_query %(str_start_period, str_start_period, str_start_period, str_end_period)
-            demands_df = pd.read_sql_query(demands_query, con=engine)
+    def get_demands(self): 
+        
+        data = pd.read_pickle('./outbound/demands.pkl', compression='infer')  
+        # Extracting and converting period boundaries
+        str_start_period = self.parameters_dict['start_period'].strftime('%Y-%m-%d')
+        str_end_period = self.parameters_dict['end_period'].strftime('%Y-%m-%d')
+        
+        start_period = pd.to_datetime(str_start_period)
+        end_period = pd.to_datetime(str_end_period)
+        
+        # Filter the data based on date range
+        filtered_df = data[(data['dp_date'] >= start_period) & (data['dp_date'] <= end_period)].copy()
+        
+        # Calculate the number of weeks and months
+        filtered_df['number_of_week'] = (filtered_df['dp_date'] - start_period).dt.days // 7
+        filtered_df['number_of_month'] = ((filtered_df['dp_date'].dt.year - start_period.year) * 12 + 
+                                          (filtered_df['dp_date'].dt.month - start_period.month))
+   
+        return filtered_df
+        
  
-            return demands_df
-        
-        except Exception as e:
-            print(e)
-            return None
-
     def get_result_summary(self): 
-        
+         
         start_date = self.parameters_dict['start_period']
         end_date = self.parameters_dict['end_period']
 
         end_month = self.parameters_dict['end_period'].month
         end_year = self.parameters_dict['end_period'].year
 
-        # sales_frequency_df = self.demands_df
         sales_frequency_df = self.demands_df.copy()   
-        sales_frequency_df['Grade'] = sales_frequency_df['Grade'].str.strip()
-            
+    
         selected_column = ['mat_number','dp_date','ton','Grade','Gram']
         sales_frequency_df = sales_frequency_df[selected_column]
         number_of_days = sales_frequency_df['dp_date'].nunique()
@@ -242,9 +335,7 @@ class Data:
         # result_summary_df = result_summary_df.merge(daily_df,how='left',on=['Mat Number'])
     
         result_summary_df = result_summary_df.drop_duplicates()
-        
-        
-        
+
         result_summary_detail_df = result_summary_df.copy() 
 
         result_summary_df = result_summary_df[['Mat Number','Grade','Gram','sales_frequency','summary_ton','weekly_std','weekly_avg','monthly_std']]
@@ -264,7 +355,6 @@ class Data:
         result_summary_df['monthly_cv'] = result_summary_df['std_monthly'] / result_summary_df['avg_monthly'] 
 
         result_summary_detail_df = result_summary_detail_df.merge(daily_df,how='left',on=['Mat Number'])
-
         result_summary_detail_df = result_summary_detail_df[['Mat Number','Grade','Gram','sales_frequency','summary_ton','weekly_std','weekly_avg','monthly_std','daily_avg','daily_std']]
         result_summary_detail_df = result_summary_detail_df.groupby(['Mat Number','Grade','Gram','sales_frequency']).agg(
             number_of_sku=('sales_frequency','count'),
@@ -300,10 +390,6 @@ class Data:
             }
         )
         return result_summary_df, result_summary_detail_df
- 
-        
-        # result_summary_df.to_pickle(os.path.join(path, './outbound/result_summary_df.pkl'))
-        # result_summary_detail_df.to_pickle(os.path.join(path, './outbound/final_prepare.pkl'))
         
     def get_inf_decision(self):
         
@@ -327,9 +413,6 @@ class Data:
         final_df = final_df.drop_duplicates()
         number_of_days = self.demands_df['dp_date'].nunique()
 
-        # print(number_of_days)
-
- 
         final_df['Grade_x'] = final_df['Grade_x'].str.strip()
         final_df['Gram_x'] = final_df['Gram_x'].str.strip()
 
@@ -338,7 +421,6 @@ class Data:
         .agg(sum_ton=('ton','sum'),number_of_sku=('sales_frequency','count'))
         .reset_index()
         )
-        
 
         cal_df_weekly_ini = (final_df.groupby(['mat_number','Grade_x','Gram_x','number_of_week'])
         .agg(sum_ton=('ton','sum'),number_of_sku=('sales_frequency','count'))
@@ -371,11 +453,6 @@ class Data:
             number_of_sku=('sales_frequency','count'))
         .reset_index()
         )
-
-        # print('cal_df_monthly')
-        # print(cal_df_monthly)
-
-        # cal_df_monthly_ini = (final_df.groupby(['mat_number','Grade_x','Gram_x','number_of_month_x'])
  
         cal_df_monthly_ini = (final_df.groupby(['mat_number','Grade_x','Gram_x','number_of_month'])
         # cal_df_monthly_ini = (final_df.groupby(['mat_number','Grade_x','Gram_x'])
@@ -393,9 +470,6 @@ class Data:
         .reset_index()
         )
 
-        # print("conclusion_monthly_df_find_std")
-        # print(conclusion_monthly_df)
-
         conclusion_monthly_ini =(cal_df_monthly_ini.groupby(['mat_number','Grade_x','Gram_x'])
         .agg(
             sum_ton =('total_ton','sum'),
@@ -412,35 +486,21 @@ class Data:
         )
         .reset_index()
         )
-
-        # print(conclusion_weekly_ini.info())
+ 
         conclusion_daily_ini["average_daily"] = conclusion_daily_ini['total_ton'] / number_of_days
         conclusion_weekly_ini['avg_weekly'] = conclusion_weekly_ini['sum_ton'] / self.number_of_week()
         conclusion_monthly_ini['avg_monthly'] = conclusion_monthly_ini['sum_ton'] / self.number_of_month()
-
-        # print("conclusion_weekly_df")
-        # print(conclusion_weekly_df)
-
-        # print("conclusion_monthly_ini")
-        # print(conclusion_monthly_ini)
-
+        
         final_df = conclusion_weekly_df.merge(conclusion_monthly_df,how='inner',on='sales_frequency')   
 
 
         final_df_ini = conclusion_weekly_ini.merge(conclusion_monthly_ini,how='inner',on='mat_number')
-
         final_df_ini = final_df_ini.merge(conclusion_daily_ini,how='inner',on='mat_number') 
-
-
         final_df_ini['cv_weekly'] = final_df_ini['std_weekly'] / final_df_ini['avg_weekly']
         final_df_ini['cv_monthly'] = final_df_ini['std_monthly'] / final_df_ini['avg_monthly']
         final_df['cv_weekly'] = final_df['std_weekly'] / final_df['avg_weekly']
         final_df['cv_monthly'] = final_df['std_monthly'] / final_df['avg_monthly']
         
-       
-
-        final_df_ini.info()
-  
         final_df_ini = sales_frequent_df[['mat_number','Grade','Gram','total_ton','avg_weekly','std_weekly','avg_monthly','std_monthly','cv_weekly','cv_monthly','average_daily','std_daily']]
         final_df_ini = final_df_ini.rename(columns={"Grade_x_x": "Grade", "Gram_x_x": "Gram"})
 
@@ -481,10 +541,6 @@ class Data:
 
         percent_df_sales_freq = data.merge(sales_frequent_df,how='left',on='mat_number')
         percent_df_sales_freq = percent_df_sales_freq.rename(columns={"Grade_x": "Grade", "Gram_x": "Gram"})
-  
-        # percent_df_sales_freq.to_excel('percent_df_sales_freq',index=False)
-
-        # data.to_pickle('./outbound/initial_std.pkl')
        
         total_ton = data['total_ton'].sum()
         percent_df = (data.groupby(['product_type'])
@@ -559,12 +615,14 @@ class Data:
 
         cluster_centroid_df = (params_clustering_df.groupby(['Clustering'])
         .agg(
+            cv_weekly=('cv_weekly', lambda x: x.quantile(0.95)),
             centroid_avg_monthly=('avg_monthly','mean'),
             avg_monthly_max=('avg_monthly','max'),
             avg_monthly_min=('avg_monthly','min'),
             centroid_cv_weekly=('cv_weekly','mean'),
             cv_weekly_max=('cv_weekly','max'),
             cv_weekly_min=('cv_weekly','min'),
+            
             )
         .reset_index()
         ) 
@@ -630,7 +688,7 @@ class Data:
     def get_leadtime(self):
         
         engine = set_connection('COGS') 
-        leadtime_query = open("./sql_script/production_leadtime.sql").read() 
+        leadtime_query = open("./sql_script/production_leadtime.sql").read()  
         leadtime_query = leadtime_query %(self.parameters_dict['year_leadtime'])
         leadtime_df = pd.read_sql_query(leadtime_query,con=engine)
         return leadtime_df
@@ -641,7 +699,6 @@ class Data:
         df_initial = self.initial_std
         df_lt = self.leadtime
 
-        # df_initial.to_excel('df_initial.xlsx')
         # caculate : Q/2
         df_initial['Grade'] = df_initial['Grade'].str.strip()
         df_initial['Gram'] = df_initial['Gram'].str.strip()
@@ -669,11 +726,12 @@ class Data:
          
         args_condition = self.parameters_dict['lst_exclude_period_cogs']
         engine = set_connection('COGS') 
+        args_condition = ['2019_']
         cogs_query = open("./sql_script/cogs.sql").read() 
         condition = ','.join("'" + str(x) + "'" for x in args_condition) 
         cogs_query = cogs_query %(condition,condition)
 
-        cogs_df = pd.read_sql_query(cogs_query,con=engine)
+        cogs_df = pd.read_sql_query(cogs_query,con=engine) 
         return cogs_df
 
     def get_adj_product_type(self):
@@ -710,7 +768,6 @@ class Data:
 
         ans_df = ans_df[['mat_number','Grade_x','Gram_x','total_ton','avg_weekly','std_weekly','avg_monthly','std_monthly','cv_weekly','cv_monthly','average_daily','std_daily','grade_gram','ton','avg_lt','sd_lt','Q_2','Safety_Stock','product_type_new','box']]
         ans_df.rename(columns = {'product_type_new':'product_type','Grade_x':'Grade','Gram_x':'Gram'}, inplace = True)
-
         df_rwds = self.rwds
         month_count = self.rwds_month_count
 
@@ -730,7 +787,7 @@ class Data:
         ans_df_cogs.rename(columns = {'product_type_y':'product_type_adj','product_type_x':'product_type'}, inplace = True)
         
         ans_df_cogs['product_type_new'] = ans_df_cogs.product_type.combine_first(ans_df_cogs.product_type_adj)
-        # ans_df_cogs.to_excel('ans_df_cogs.xlsx',index = False)
+  
         # ================================================================================
         condition_new_ss_non_std = (ans_df_cogs["product_type_new"] == 'NON-STD')
         condition_new_ss_std = (ans_df_cogs["product_type_new"] == 'STD')
@@ -746,18 +803,9 @@ class Data:
         ans_df_cogs_low_std['new_ss'] = ans_df_cogs_low_std['Safety_Stock'] * 0.5
 
         # ================================================================================
-        # ans_df_cogs_non_std.to_excel('ans_df_cogs_non_std.xlsx',index=False)
-        # ans_df_cogs_std.to_excel('ans_df_cogs_std.xlsx',index=False)
-        # ans_df_cogs_low_std.to_excel('ans_df_cogs_low_std.xlsx',index=False)
         final_ans_df_cogs = pd.concat([ans_df_cogs_non_std, ans_df_cogs_std,ans_df_cogs_low_std],ignore_index=True)
-        # final_ans_df_cogs.to_excel('final_ans_df_cogs_3.xlsx',index=False)
         final_ans_df_cogs["avg_inventory"] = final_ans_df_cogs["Q_2"] + final_ans_df_cogs["new_ss"]
         final_ans_df_cogs = final_ans_df_cogs.drop_duplicates()
-        # final_ans_df_cogs.to_excel('final_ans_df_cogs_2.xlsx',index=False)
-
-        # final_ans_df_cogs = final_ans_df_cogs.merge(adj_product_type_df,how='left',on=['mat_number'])
-
-        # final_ans_df_cogs.to_excel('final_ans_df_cogs.xlsx',index=False)
 
         check_condition_same = (final_ans_df_cogs["product_type"] == final_ans_df_cogs["product_type_adj"])
         check_condition_same_non = ((final_ans_df_cogs["product_type"] == 'NON-STD') & (final_ans_df_cogs["product_type_adj"] == 'STD'))
@@ -769,7 +817,6 @@ class Data:
 
         # ================================================================================
         final_ans_df_cogs = final_ans_df_cogs.drop_duplicates()
-        # final_ans_df_cogs.to_excel('final_ans_df_cogs_revise.xlsx',index=False)
 
         final_ans_df_cogs["avg_inventory_days"] = final_ans_df_cogs["avg_inventory"] / final_ans_df_cogs["average_daily"]
         final_ans_df_cogs["avg_x_cogs"] = final_ans_df_cogs["avg_inventory"] * final_ans_df_cogs["cogs_amt"]
@@ -783,13 +830,13 @@ class Data:
         sum_avg_x_cogs = final_ans_df_cogs["avg_x_cogs"].sum()
         
         inventory_turnover_ratio = (params_cogs * (10**6)) / (sum_avg_x_cogs + ((params_cogs_wip_raw_mat * (10**6)) * params_coe_domestic))
-        
+  
         total_ton = final_ans_df_cogs["total_ton"].sum()
         lt_x_ton = (final_ans_df_cogs["total_ton"] * final_ans_df_cogs["avg_lt"]).sum()
         cogs_amt_avg = final_ans_df_cogs["cogs_amt"].mean()
 
         production_lt = lt_x_ton / total_ton
-
+        production_lt = round(production_lt,2)
         # Revise no : STD => Non Std
         cnt_final_ans_df_cond = (((final_ans_df_cogs["product_type_adj"] == 'STD') | (final_ans_df_cogs["product_type_adj"] == 'LOW-STD')) & (final_ans_df_cogs["product_type"] == 'NON-STD'))
         cnt_final_ans_df_cogs = final_ans_df_cogs.loc[cnt_final_ans_df_cond]
@@ -817,12 +864,9 @@ class Data:
         cnt_final_ans_df_cogs = cnt_final_ans_df_cogs.loc[cnt_final_ans_df_cogs_condition]
 
         revise_no = cnt_final_ans_df_cogs['grade_gram'].count()
-        # lst_grade_gram = ','.join(cnt_final_ans_df_cogs['grade_gram'].head(10).tolist())
         lst_grade_gram  = ','.join(cnt_final_ans_df_cogs['grade_gram'].tolist())
         revise_no = len(set(cnt_final_ans_df_cogs['grade_gram'].tolist()))
-
-        # lst_grade_gram_all = ','.join(cnt_final_ans_df_cogs['grade_gram'].tolist())
-
+        
         final_ans_df_cogs['K'] = params_k
         final_ans_df_cogs['service_level'] = params_service_level
         final_ans_df_cogs['avg_monthly_upper_bound'] = params_avg_monthly_upper_bound
@@ -832,11 +876,8 @@ class Data:
         final_ans_df_cogs['wacc'] = params_wacc
         final_ans_df_cogs['holding_cost'] = params_holding_cost
 
-        # df_frequency = pd.read_pickle('./outbound/df_frequency.pkl')
         df_frequency = self.percent_df_sales_freq
      
-        
-        # final_ans_df_cogs = final_ans_df_cogs.merge(df_frequency, on='mat_number', how='left')
         final_ans_df_cogs = final_ans_df_cogs.merge(df_frequency, on='mat_number', how='left', suffixes=('_left', '_right'))
 
         lst_column = [
@@ -942,7 +983,8 @@ class Data:
             'revise_sku_no' : sku_revise_count,
             'main_grade': lst_grade_gram
         }
-
+        
+        #add append pkl file choose 
         df_choose = pd.DataFrame([row])
 
         return df_choose, production_lt
