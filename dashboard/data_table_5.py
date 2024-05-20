@@ -19,7 +19,8 @@ class Table5:
                 return_clustring_df, 
                 x="avg_monthly", 
                 y="cv_weekly", 
-                color="Clustering",hover_data=['mat_number','Grade','Gram']
+                color="Clustering",hover_data=['mat_number','Grade','Gram'],
+                labels={'cv_weekly': 'CV Weekly', 'avg_monthly': 'AVG Monthly'},
                 ) 
  
 

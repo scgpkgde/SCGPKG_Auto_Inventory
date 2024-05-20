@@ -5,6 +5,18 @@ class Table1:
  
     
     def get_data(self):
-        return  self.data.final_df
+        
+        final_df = self.data.final_df.rename(columns=
+                                             {'sales_frequency': 'Sales Frequency',
+                                              'total_ton': 'Total Ton',
+                                              'avg_weekly': 'AVG Weekly',
+                                              'std_weekly': 'STD Weekly',
+                                              'avg_monthly': 'AVG Monthly',
+                                              'std_monthly': 'STD Monthly',
+                                              'cv_weekly': 'CV Weekly',
+                                              'cv_monthly': 'CV Monthly' 
+                                              })
+        
+        return  final_df
     
  

@@ -1,11 +1,12 @@
 import streamlit as st 
 import streamlit_shadcn_ui as ui
-from dashboard import data_table_1, data_table_2, data_table_3, data_table_4, data_table_5, data_table_6, data_table_7, data_table_8, data_table_9, data_table_10
+from dashboard import data_table_1, data_table_2, data_table_3, data_table_4, data_table_5, data_table_6, data_table_7, data_table_8, data_table_9
 import dashboard.data_preparation as data_preparation
 import streamlit as st
 from datetime import datetime, date, timedelta
 import scipy.stats as stat
 import pandas as pd
+from dashboard import data_table_6
 import new_main
 
  
@@ -173,23 +174,20 @@ def main():
     submit_btn = True
     if submit_btn :
         with st.container(): 
-            
+    
             is_change = False
             if start_period != st.session_state.start_period or end_period != st.session_state.end_period:
                 is_change = True
     
             prepare_data = data_preparation.Data(parameters_dict, is_change)
-            
-           
+ 
             st.write(
                 f'<h2 style="text-align: -webkit-center;">Data for decision',
                 f'</h2>',
                 unsafe_allow_html=True
             )
-            
-             
-            st.dataframe(data_table_1.Table1(prepare_data).get_data() )
-
+              
+            st.dataframe(data_table_1.Table1(prepare_data).get_data(), hide_index=True)  
             quantile_value = data_table_2.Table2(prepare_data).get_quantile()
             st.write(
                 f'<div class="card" style="border: 1px solid rgb(0 0 0 / 19%);border-radius: 10px;margin-bottom: 20px;">',
@@ -201,7 +199,7 @@ def main():
                 '</div>',
                 unsafe_allow_html=True
             )
-            st.dataframe(data=data_table_2.Table2(prepare_data).get_data(),width=1000)
+            st.dataframe(data=data_table_2.Table2(prepare_data).get_data(),width=1000, hide_index=True)
             st.plotly_chart(data_table_3.Table3(prepare_data).get_data(), use_container_width=True)
             st.altair_chart(data_table_4.Table4(prepare_data).get_data(), use_container_width=True)
             st.markdown('<hr style="margin-top: 5px; margin-bottom:15px;">', unsafe_allow_html=True)
@@ -212,20 +210,14 @@ def main():
                 unsafe_allow_html=True
             )
             st.plotly_chart(data_table_5.Table5(prepare_data).get_data(), use_container_width=True)
-
-            # cols = st.columns(2)
-            # with cols[0]:
-            #     st.dataframe(data_table_6.Table6(prepare_data).get_data().to_frame().style.format("{:.2f}"),width=1000)
-            # with cols[1]:
-            st.dataframe(data_table_7.Table7(prepare_data).get_data(),width=1000)
-
-            st.dataframe(data_table_8.Table8(prepare_data).get_data().style.format("{:.2f}"),width=1000)
-            st.dataframe(data_table_9.Table9(prepare_data).get_data())  
+            st.dataframe(data_table_6.Table6(prepare_data).get_data(),width=1000, hide_index=True)
+            st.dataframe(data_table_7.Table7(prepare_data).get_data().style.format("{:.2f}"),width=1000, hide_index=True)
+            st.dataframe(data_table_8.Table8(prepare_data).get_data(), hide_index=True)  
             st.write(
                 f'<div class="card" style="border: 1px solid rgb(0 0 0 / 19%);border-radius: 10px;margin-bottom: 20px;">',
                 f'<div class="card-body" style="padding: 1%; text-align: -webkit-center;">',
                 f'<p class="card-text" style="margin: 0;">Production Lead Time</p>',
-                f'<p class="card-text" style="margin: 0; font-size: x-large; font-weight: 600;">{data_table_10.Table10(prepare_data).get_data()}</p>',
+                f'<p class="card-text" style="margin: 0; font-size: x-large; font-weight: 600;">{data_table_9.Table9(prepare_data).get_data()}</p>',
                 '</div>',
                 '</div>',
                 unsafe_allow_html=True

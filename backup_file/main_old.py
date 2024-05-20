@@ -1,11 +1,13 @@
 # file main.py 
 # Reduced code
-from dashboard import data_table_1, data_table_2, data_table_3, data_table_4, data_table_5, data_table_6, data_table_7, data_table_8, data_table_9, data_table_10
+from dashboard import data_table_1, data_table_2, data_table_3, data_table_4, data_table_5, data_table_6, data_table_7, data_table_8, data_table_9
 import dashboard.data_preparation as data_preparation
 import streamlit as st
 from datetime import datetime, date, timedelta
 import scipy.stats as stat
 import pandas as pd
+
+from dashboard import data_table_6
 
 
 def main(): 
@@ -171,10 +173,10 @@ def main():
             st.altair_chart(data_table_4.Table4(prepare_data).get_data(), use_container_width=True)
             st.plotly_chart(data_table_5.Table5(prepare_data).get_data(), use_container_width=True)
             st.dataframe(data_table_6.Table6(prepare_data).get_data().to_frame().style.format("{:.2f}"))
-            st.dataframe(data_table_7.Table7(prepare_data).get_data())
-            st.dataframe(data_table_8.Table8(prepare_data).get_data().style.format("{:.2f}"))
-            st.dataframe(data_table_9.Table9(prepare_data).get_data())  
-            st.write("Production Lead Time : %s" % data_table_10.Table10(prepare_data).get_data())
+            st.dataframe(data_table_6.Table7(prepare_data).get_data())
+            st.dataframe(data_table_7.Table8(prepare_data).get_data().style.format("{:.2f}"))
+            st.dataframe(data_table_8.Table9(prepare_data).get_data())  
+            st.write("Production Lead Time : %s" % data_table_9.Table10(prepare_data).get_data())
             
 if __name__ == '__main__':  
     main()

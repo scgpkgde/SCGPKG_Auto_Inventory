@@ -2,10 +2,23 @@
 class Table6:
     def __init__(self, prepare_data):
         self.data = prepare_data
+        
+    
  
     
     def get_data(self):
-        return_clustring_df = self.data.params_clustering_df
-        df_percentile = return_clustring_df.groupby('Clustering')['cv_weekly'].quantile(.95)
-        return  df_percentile
+        
+        cluster_centroid_df = self.data.cluster_centroid_df.rename(columns=
+                                             { 
+                                              'cv_weekly': 'CV Weekly',
+                                              'centroid_avg_monthly': 'Centroid AVG Monthly',
+                                              'avg_monthly_max': 'AVG Monthly Max',
+                                              'avg_monthly_min': 'AVG Monthly Min',
+                                              'centroid_cv_weekly': 'Centroid CV Weekly',
+                                              'cv_weekly_max': 'CV Weekly Max',
+                                              'cv_weekly_min': 'CV Weekly Min', 
+                                              })
+        
+        
+        return  cluster_centroid_df
     

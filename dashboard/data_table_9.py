@@ -7,6 +7,6 @@ class Table9:
  
     
     def get_data(self): 
- 
-        return  self.data.df_choose
+        
+        return  round(self.data.production_lt,2)
     

@@ -5,5 +5,12 @@ class Table7:
  
     
     def get_data(self):
-        return  self.data.cluster_centroid_df
+    
+        df_percentile = self.data.df_percentile.rename(columns=
+                                            { 
+                                              'percentile': 'Percentile',
+                                              'sales_volume': 'Sales Volume',
+                                              'cv': 'CV' 
+                                              })
+        return  df_percentile
     

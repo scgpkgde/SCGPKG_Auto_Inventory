@@ -16,7 +16,8 @@ class Table3:
                 src_sales_freq_df, 
                 x="avg_monthly", 
                 y="cv_weekly", 
-                color="sales_frequency",hover_data=['mat_number','Grade','Gram']
+                color="sales_frequency",hover_data=['mat_number','Grade','Gram'],
+                labels={'cv_weekly': 'CV Weekly', 'avg_monthly': 'AVG Monthly','sales_frequency':'Sales Frequency'},
                 )
         
         fig.add_hline(y=self.data.parameters_dict['weekly_cv'],line_dash="dash", line_color="red")
