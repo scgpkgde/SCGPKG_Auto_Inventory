@@ -11,10 +11,8 @@ from dashboard import data_table_6
 
 def main():
     st.title("Main2 Page")
-    st.write("Welcome to Main2.")
-    st.header("Test")
-        
+    st.write("Welcome to Main2.")        
     
-if __name__ == '__main__':  
-    main()
+
+main()
 

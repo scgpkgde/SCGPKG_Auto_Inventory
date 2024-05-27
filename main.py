@@ -9,8 +9,8 @@ import pandas as pd
 from dashboard import data_table_6
 import new_main
 
- 
-def main():
+
+def decision_cluster():
 
     df_choose_lst = [
         'inventory_turnover',
@@ -182,7 +182,7 @@ def main():
             prepare_data = data_preparation.Data(parameters_dict, is_change)
  
             st.write(
-                f'<h2 style="text-align: -webkit-center;">Data for decision',
+                f'<h2 style="text-align: -webkit-center;color: #162e74;font-weight: 800;">Data for decision',
                 f'</h2>',
                 unsafe_allow_html=True
             )
@@ -205,7 +205,7 @@ def main():
             st.markdown('<hr style="margin-top: 5px; margin-bottom:15px;">', unsafe_allow_html=True)
 
             st.write(
-                f'<h2 style="text-align: -webkit-center;">Data for cluster',
+                f'<h2 style="text-align: -webkit-center;color: #162e74;font-weight: 800;">Data for cluster',
                 f'</h2>',
                 unsafe_allow_html=True
             )
@@ -228,16 +228,26 @@ def main():
  
             submit_btn = False
 
-    if st.button("Go to new Page"):
-        st.session_state.page = "new"   
+def page1():
+    decision_cluster()
+    # if st.button('ไปที่หน้า 2'):
+    #     st.session_state.page = 'page2'
+    #     st.experimental_rerun()
         
-if __name__ == '__main__':  
-     
-    if 'page' not in st.session_state:
-        st.session_state.page = 'main'
-        
-    if st.session_state.page == 'main':
-        main()
-        
-    elif st.session_state.page == 'new':
-        new_main.main()
+def newpage():
+    new_main.main()
+    if st.button('ไปที่หน้า 1'):
+        st.session_state.page = 'page1'
+        st.experimental_rerun()
+
+def main():
+    page1()
+    # if 'page' not in st.session_state:
+    #     st.session_state.page = 'page1'
+
+    # if st.session_state.page == 'page1':
+    #     page1()
+    # elif st.session_state.page == 'page2':
+    #     newpage()
+ 
+main()
