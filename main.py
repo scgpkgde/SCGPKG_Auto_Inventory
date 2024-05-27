@@ -9,7 +9,6 @@ import pandas as pd
 from dashboard import data_table_6
 import new_main
 
-
 def decision_cluster():
 
     df_choose_lst = [
@@ -211,6 +210,14 @@ def decision_cluster():
             )
             st.plotly_chart(data_table_5.Table5(prepare_data).get_data(), use_container_width=True)
             st.dataframe(data_table_6.Table6(prepare_data).get_data(),width=1000, hide_index=True)
+            header_style = """
+                <style>
+                    .dataframe th {
+                        text-align: center;
+                    }
+                </style>
+            """
+            st.write(header_style, unsafe_allow_html=True)
             st.dataframe(data_table_7.Table7(prepare_data).get_data().style.format("{:.2f}"),width=1000, hide_index=True)
             st.dataframe(data_table_8.Table8(prepare_data).get_data(), hide_index=True)  
             st.write(

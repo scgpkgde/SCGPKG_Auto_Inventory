@@ -14,5 +14,5 @@ def main():
     st.write("Welcome to Main2.")        
     
 
-main()
+# main()
 
