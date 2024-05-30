@@ -8,6 +8,22 @@ import scipy.stats as stat
 import pandas as pd
 from dashboard import data_table_6
 import new_main
+import os
+from io import BytesIO
+
+file_path = './outbound/final_ans_df_cogs.xlsx'
+
+def excel_file(file_path):
+    df = pd.read_excel(file_path)                  
+    output = BytesIO()
+
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+         df.to_excel(writer, index=False, sheet_name='Sheet1')
+        #  writer.save()
+     
+    output.seek(0)
+
+    return output
 
 def decision_cluster():
 
@@ -232,7 +248,22 @@ def decision_cluster():
             
             st.session_state.start_period = start_period
             st.session_state.end_period = end_period
- 
+
+            current_date = datetime.now()
+            formatted_date = current_date.strftime('%Y%m%d')
+            file_name = "Inventory_Detail_" + formatted_date + ".xlsx"
+
+            try:
+                output = excel_file(file_path)
+                st.download_button(
+                    label="Download Excel File",
+                    data=output,
+                    file_name=file_name,
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+            except Exception as e:
+                    st.error(f"Error: {str(e)}")
+
             submit_btn = False
 
 def page1():
