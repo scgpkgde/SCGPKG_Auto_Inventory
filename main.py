@@ -19,7 +19,6 @@ def excel_file(file_path):
 
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
          df.to_excel(writer, index=False, sheet_name='Sheet1')
-        #  writer.save()
      
     output.seek(0)
 
@@ -267,25 +266,25 @@ def decision_cluster():
             submit_btn = False
 
 def page1():
-    decision_cluster()
     # if st.button('ไปที่หน้า 2'):
     #     st.session_state.page = 'page2'
     #     st.experimental_rerun()
-        
+    decision_cluster()
+          
 def newpage():
-    new_main.main()
     if st.button('ไปที่หน้า 1'):
         st.session_state.page = 'page1'
         st.experimental_rerun()
-
+    new_main.main()
+    
 def main():
-    page1()
-    # if 'page' not in st.session_state:
-    #     st.session_state.page = 'page1'
+    # page1()
+    if 'page' not in st.session_state:
+        st.session_state.page = 'page1'
 
-    # if st.session_state.page == 'page1':
-    #     page1()
-    # elif st.session_state.page == 'page2':
-    #     newpage()
+    if st.session_state.page == 'page1':
+        page1()
+    elif st.session_state.page == 'page2':
+        newpage()
  
 main()
