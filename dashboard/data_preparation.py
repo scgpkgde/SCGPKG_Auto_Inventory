@@ -157,15 +157,16 @@ class Data:
         
         start_period = pd.to_datetime(str_start_period)
         end_period = pd.to_datetime(str_end_period)
-        
+ 
         # Filter the data based on date range
         filtered_df = data[(data['dp_date'] >= start_period) & (data['dp_date'] <= end_period)].copy()
-        
+ 
         # Calculate the number of weeks and months
         filtered_df['number_of_week'] = (filtered_df['dp_date'] - start_period).dt.days // 7
         filtered_df['number_of_month'] = ((filtered_df['dp_date'].dt.year - start_period.year) * 12 + 
                                           (filtered_df['dp_date'].dt.month - start_period.month))
-   
+        
+ 
         return filtered_df
         
  
@@ -178,7 +179,7 @@ class Data:
         end_year = self.parameters_dict['end_period'].year
 
         sales_frequency_df = self.demands_df.copy()   
-    
+ 
         selected_column = ['mat_number','dp_date','ton','Grade','Gram']
         sales_frequency_df = sales_frequency_df[selected_column]
         number_of_days = sales_frequency_df['dp_date'].nunique()
@@ -288,6 +289,7 @@ class Data:
                 previous_mat = row['Mat Number']
                 previous_month_sales = row['sale_flag']
             else:
+             
 
                 # print(f'Maximum continuous non sales month of {previous_mat} : {max_continuous_non_sales}')
                 prepare_df.loc[(prepare_df['Mat Number'] == previous_mat), 'max_non_sales'] = max_continuous_non_sales
@@ -943,7 +945,8 @@ class Data:
         final_ans_df_cogs["avg_monthly"] = final_ans_df_cogs["avg_monthly"].fillna(0)
         final_ans_df_cogs["std_monthly"] = final_ans_df_cogs["std_monthly"].fillna(0)
         final_ans_df_cogs["cv_monthly"] = final_ans_df_cogs["cv_monthly"].fillna(0)
- 
+    
+        final_ans_df_cogs.to_excel('./outbound/final_ans_df_cogs.xlsx', index=False)
         # =========================================================================
         condition_std = (final_ans_df_cogs['product_type'] == 'STD' )
         condition_non_std = (final_ans_df_cogs['product_type'] == 'NON-STD')
