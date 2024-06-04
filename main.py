@@ -13,6 +13,22 @@ from io import BytesIO
 
 file_path = './outbound/final_ans_df_cogs.xlsx'
 
+def write_date(start_date,end_date):
+    data_string = start_date.strftime("%Y-%m-%d") + ',' + end_date.strftime("%Y-%m-%d")
+    file_name = "./outbound/date_config.txt"
+    with open(file_name, "w") as file:
+        file.write(data_string)
+    print(data_string)
+    # st.write(f'--- write file -- {data_string}')
+
+def read_date():
+    file_name = "./outbound/date_config.txt"
+    with open(file_name, "r") as file:
+        content = file.read()
+        content_ = content.split(", ")
+    print(content_)
+    return content_
+
 def excel_file(file_path):
     df = pd.read_excel(file_path)                  
     output = BytesIO()
@@ -25,7 +41,6 @@ def excel_file(file_path):
     return output
 
 def decision_cluster():
-
     df_choose_lst = [
         'inventory_turnover',
         'ratio (STD:LOW:NON)',
@@ -72,15 +87,12 @@ def decision_cluster():
             else:
                 add_period = str(period) + '_' + str(month)
             lst_period_month.append(add_period)
-            
- 
-    with st.sidebar:
-        
+             
+    with st.sidebar:    
         with st.form("input_params_form",border=False):
             
             if 'start_period' and 'end_period' not in st.session_state: 
-                
-                # Get current date
+
                 current_date = datetime.now()
 
                 # Get the end of the current month
@@ -104,9 +116,13 @@ def decision_cluster():
 
                 st.session_state.start_period = end_of_month_two_years_ago.date()
                 st.session_state.end_period = end_of_month_this_year.date()
+                # date_ = {st.session_state.start_period,st.session_state.end_period}
+                write_date(st.session_state.start_period,st.session_state.end_period)  
                   
             start_period = st.date_input("Data date from :", value=st.session_state.start_period)
             end_period = st.date_input("Data date to :", value=st.session_state.end_period)
+
+              
      
             st.markdown('<hr style="margin-top: 5px; margin-bottom:15px;">', unsafe_allow_html=True)
 
@@ -188,10 +204,29 @@ def decision_cluster():
     submit_btn = True
     if submit_btn :
         with st.container(): 
-    
+            date_ = read_date()
+            date_string = date_[0]
+            date_strings = date_string.split(',')
+
+            # st.write(date_strings)
+
+            start_period_config = datetime.strptime(date_strings[0], "%Y-%m-%d").date()
+            end_period_config = datetime.strptime(date_strings[1], "%Y-%m-%d").date()
+
+            # st.write('----- period ------')
+            # st.write(start_period)
+            # st.write(end_period)
+
+            # st.write('----- config ------')
+            # st.write(start_period_config)
+            # st.write(end_period_config)
+
             is_change = False
-            if start_period != st.session_state.start_period or end_period != st.session_state.end_period:
+            if start_period != start_period_config or end_period != end_period_config:
+                # st.write('Chang')
                 is_change = True
+            # else:
+            #     st.write('Not Chang')
     
             prepare_data = data_preparation.Data(parameters_dict, is_change)
  
@@ -245,8 +280,8 @@ def decision_cluster():
                 unsafe_allow_html=True
             )
             
-            st.session_state.start_period = start_period
-            st.session_state.end_period = end_period
+            # parameters_dict["start_period"] = start_period_config
+            # parameters_dict["end_period"] = end_period_config
 
             current_date = datetime.now()
             formatted_date = current_date.strftime('%Y%m%d')
@@ -263,6 +298,8 @@ def decision_cluster():
             except Exception as e:
                     st.error(f"Error: {str(e)}")
 
+            
+            write_date(start_period,end_period)  
             submit_btn = False
 
 def page1():

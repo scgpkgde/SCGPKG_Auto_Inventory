@@ -149,7 +149,8 @@ class Data:
         return round(diff_date.days / 30, 0)    
  
     def get_demands(self): 
-        
+        print('------- get demand ------')
+        # st.write('------- get demand ------')
         data = pd.read_pickle('./outbound/demands.pkl', compression='infer')  
         # Extracting and converting period boundaries
         str_start_period = self.parameters_dict['start_period'].strftime('%Y-%m-%d')
