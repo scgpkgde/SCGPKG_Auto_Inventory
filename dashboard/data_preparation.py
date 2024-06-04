@@ -702,10 +702,14 @@ class Data:
         df_initial = self.initial_std
         df_lt = self.leadtime
 
+        # df_lt.to_excel('./outbound/df_lt.xlsx', index=False)
+
         # caculate : Q/2
         df_initial['Grade'] = df_initial['Grade'].str.strip()
         df_initial['Gram'] = df_initial['Gram'].str.strip()
         df_initial['grade_gram'] = df_initial['Grade'] + df_initial['Gram']
+
+        # df_initial.to_excel('./outbound/df_initial.xlsx', index=False)
  
         df_result_lt = df_initial.merge(df_lt,how='left',on='grade_gram')
  
@@ -716,6 +720,8 @@ class Data:
                 ((df_result_lt['average_daily'] ** 2) * (df_result_lt['sd_lt'] ** 2))
              ) ** (1/2) ) 
         
+        # df_result_lt.to_excel('./outbound/df_result_lt.xlsx', index=False)
+
         data_main = df_result_lt.copy()  
         # df_result_lt.to_pickle('./outbound/data_main.pkl')
         condition_none_std = (df_result_lt["product_type"] == "")
@@ -761,6 +767,8 @@ class Data:
         df_not_unknown =  self.data_buffer_not_unknown
         df_nine_box = self.df_after_nine_box
 
+        # df_main.to_excel('./outbound/df_main.xlsx', index=False)
+
         df_not_unknown = df_not_unknown[['mat_number','Grade','Gram','product_type']]
         df_nine_box = df_nine_box[['mat_number','Grade','Gram','product_type','box']]
 
@@ -790,7 +798,8 @@ class Data:
         ans_df_cogs.rename(columns = {'product_type_y':'product_type_adj','product_type_x':'product_type'}, inplace = True)
         
         ans_df_cogs['product_type_new'] = ans_df_cogs.product_type.combine_first(ans_df_cogs.product_type_adj)
-  
+
+        # ans_df_cogs.to_excel('./outbound/ans_df_cogs.xlsx', index=False)
         # ================================================================================
         condition_new_ss_non_std = (ans_df_cogs["product_type_new"] == 'NON-STD')
         condition_new_ss_std = (ans_df_cogs["product_type_new"] == 'STD')
@@ -801,6 +810,7 @@ class Data:
         ans_df_cogs_low_std = ans_df_cogs[condition_new_ss_low_std]
         # ================================================================================
 
+
         ans_df_cogs_non_std['new_ss'] = 0.00
         ans_df_cogs_std['new_ss'] = ans_df_cogs_std['Safety_Stock']
         ans_df_cogs_low_std['new_ss'] = ans_df_cogs_low_std['Safety_Stock'] * 0.5
@@ -808,6 +818,8 @@ class Data:
         # ================================================================================
         final_ans_df_cogs = pd.concat([ans_df_cogs_non_std, ans_df_cogs_std,ans_df_cogs_low_std],ignore_index=True)
         final_ans_df_cogs["avg_inventory"] = final_ans_df_cogs["Q_2"] + final_ans_df_cogs["new_ss"]
+        final_ans_df_cogs["avg_inventory"].fillna(final_ans_df_cogs["Q_2"], inplace=True)
+
         final_ans_df_cogs = final_ans_df_cogs.drop_duplicates()
 
         check_condition_same = (final_ans_df_cogs["product_type"] == final_ans_df_cogs["product_type_adj"])
@@ -945,9 +957,13 @@ class Data:
 
         final_ans_df_cogs["avg_monthly"] = final_ans_df_cogs["avg_monthly"].fillna(0)
         final_ans_df_cogs["std_monthly"] = final_ans_df_cogs["std_monthly"].fillna(0)
-        final_ans_df_cogs["cv_monthly"] = final_ans_df_cogs["cv_monthly"].fillna(0)
-    
+        final_ans_df_cogs["cv_monthly"] = final_ans_df_cogs["cv_monthly"].fillna(0) 
+        
+        if final_ans_df_cogs['Safety_Stock'].isnull().any():
+            st.warning('There are some missing data: "Safety Stock" has a null value!!!')
+            
         final_ans_df_cogs.to_excel('./outbound/final_ans_df_cogs.xlsx', index=False)
+
         # =========================================================================
         condition_std = (final_ans_df_cogs['product_type'] == 'STD' )
         condition_non_std = (final_ans_df_cogs['product_type'] == 'NON-STD')

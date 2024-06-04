@@ -70,7 +70,7 @@ def decision_cluster():
     holding_cost = 160.0
     wacc = 11.5
     z_score = None
-    lst_period = [i for i in range(current_year - 5,current_year - 2)]
+    lst_period = [i for i in range(current_year - 5,current_year)]
     lst_month = ['',1,2,3,4,5,6,7,8,9,10,11,12]
     lst_period_month = []
     exclude_year_defualt = str(current_year - 5)
@@ -133,7 +133,8 @@ def decision_cluster():
                 weekly_cv = st.number_input(label="Weekly CV",value = weekly_cv ,step=0.1) 
                 number_of_k = st.number_input(label="Choose number of cluster",value=number_of_k,step=1,format='%i')
 
-                year_leadtime = st.selectbox('Leadtime Period ',lst_period,index= len(lst_period) - 2 )
+                # year_leadtime = st.selectbox('Leadtime Period ',lst_period,index= len(lst_period))
+                year_leadtime = st.selectbox('Leadtime Period ',lst_period,index= len(lst_period) - 1)
                 service_level = st.number_input(label=f"Percent Of Service Level (%)",value=service_level,min_value=0.00,max_value=100.00,step=1.00)
                 z_score = stat.norm.ppf(service_level/100)
                 cogs = st.number_input(label=f"Cost of goods sold FG (million THB)",value=cogs,min_value=0.00,max_value=10000000.00,step=1.00)
