@@ -304,9 +304,9 @@ def decision_cluster():
             submit_btn = False
 
 def page1():
-    # if st.button('ไปที่หน้า 2'):
-    #     st.session_state.page = 'page2'
-    #     st.experimental_rerun()
+    if st.button('ไปที่หน้า 2'):
+        st.session_state.page = 'page2'
+        st.experimental_rerun()
     decision_cluster()
           
 def newpage():
@@ -316,13 +316,13 @@ def newpage():
     new_main.main()
     
 def main():
-    # page1()
-    if 'page' not in st.session_state:
-        st.session_state.page = 'page1'
+    decision_cluster()
+    # if 'page' not in st.session_state:
+    #     st.session_state.page = 'page1'
 
-    if st.session_state.page == 'page1':
-        page1()
-    elif st.session_state.page == 'page2':
-        newpage()
+    # if st.session_state.page == 'page1':
+    #     page1()
+    # elif st.session_state.page == 'page2':
+    #     newpage()
  
 main()
