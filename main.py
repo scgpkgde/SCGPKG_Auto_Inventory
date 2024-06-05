@@ -124,7 +124,7 @@ def decision_cluster():
 
               
      
-            st.markdown('<hr style="margin-top: 5px; margin-bottom:15px;">', unsafe_allow_html=True)
+            # st.markdown('<hr style="margin-top: 5px; margin-bottom:15px;">', unsafe_allow_html=True)
 
             with st.expander("Decision Parameters"):
                 st.header("Parameters for decision")
