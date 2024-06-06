@@ -7,12 +7,8 @@ from datetime import datetime, date, timedelta
 import scipy.stats as stat
 import pandas as pd
 
-from dashboard import data_table_6
-
 def main():
-    st.title("Main2 Page")
-    st.write("Welcome to Main2.")        
+    st.title("Duplex Page")
+    st.write("Welcome to duplex")        
     
-
-# main()
 
