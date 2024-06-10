@@ -7,7 +7,7 @@ PAGES = {
     "Duplex system": duplex_system_app,
 }
 st.sidebar.write(
-        f'<div style="margin-top: -35px;font: initial;font-size: 40px;color: #162e74;">PP Inventory',
+        f'<div style="margin-top: -35px;font: initial;font-size: 45px;color: #162e74;">PP Inventory',
         f'</div>',
         unsafe_allow_html=True
     )
