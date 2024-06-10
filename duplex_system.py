@@ -6,9 +6,9 @@ import streamlit as st
 from datetime import datetime, date, timedelta
 import scipy.stats as stat
 import pandas as pd
+import time
 
 def main():
-    st.title("Duplex Page")
-    st.write("Welcome to duplex")        
-    
+    st.title("Coming Soon..")   
+
 
